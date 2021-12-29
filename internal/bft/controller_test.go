@@ -102,6 +102,7 @@ func TestControllerLeaderBasic(t *testing.T) {
 	startedWG.Add(1)
 
 	controller := &bft.Controller{
+		InFlight:      &bft.InFlightData{},
 		Checkpoint:    &types.Checkpoint{},
 		RequestPool:   pool,
 		LeaderMonitor: leaderMon,
@@ -201,6 +202,7 @@ func TestLeaderPropose(t *testing.T) {
 	startedWG.Add(1)
 
 	controller := &bft.Controller{
+		InFlight:      &bft.InFlightData{},
 		RequestPool:   reqPool,
 		LeaderMonitor: leaderMon,
 		WAL:           wal,
@@ -336,6 +338,7 @@ func TestViewChanged(t *testing.T) {
 	startedWG.Add(1)
 
 	controller := &bft.Controller{
+		InFlight:      &bft.InFlightData{},
 		Checkpoint:    &types.Checkpoint{},
 		Signer:        signer,
 		WAL:           wal,
@@ -601,6 +604,7 @@ func TestControllerLeaderRequestHandling(t *testing.T) {
 			startedWG.Add(1)
 
 			controller := &bft.Controller{
+				InFlight:      &bft.InFlightData{},
 				Checkpoint:    &types.Checkpoint{},
 				RequestPool:   pool,
 				LeaderMonitor: leaderMon,
@@ -776,6 +780,7 @@ func TestSyncInform(t *testing.T) {
 	vc.ControllerStartedWG.Add(1)
 
 	controller := &bft.Controller{
+		InFlight:      &bft.InFlightData{},
 		Signer:        signer,
 		WAL:           wal,
 		ID:            2,
@@ -891,6 +896,7 @@ func TestRotateFromLeaderToFollower(t *testing.T) {
 	startedWG.Add(1)
 
 	controller := &bft.Controller{
+		InFlight:           &bft.InFlightData{},
 		RequestPool:        reqPool,
 		LeaderMonitor:      leaderMon,
 		WAL:                wal,
@@ -1072,6 +1078,7 @@ func TestRotateFromFollowerToLeader(t *testing.T) {
 	startedWG.Add(1)
 
 	controller := &bft.Controller{
+		InFlight:           &bft.InFlightData{},
 		RequestPool:        reqPool,
 		LeaderMonitor:      leaderMon,
 		WAL:                wal,

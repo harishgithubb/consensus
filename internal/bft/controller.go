@@ -100,8 +100,8 @@ type Controller struct {
 	ViewChanger        *ViewChanger
 	Collector          *StateCollector
 	State              State
-
-	quorum int
+	InFlight           *InFlightData
+	quorum             int
 
 	currView Proposer
 
@@ -580,7 +580,10 @@ func (c *Controller) sync() (viewNum uint64, seq uint64, decisions uint64) {
 		c.Logger.Infof("Synchronizer returned with view number %d but the controller is at view number %d", md.ViewId, c.currViewNumber)
 		return 0, 0, 0
 	}
+
 	c.Logger.Infof("Synchronized to view %d and sequence %d with verification sequence %d", md.ViewId, md.LatestSequence, decision.Proposal.VerificationSequence)
+
+	c.maybePruneInFlight(*md)
 
 	view := md.ViewId
 	newView := false
@@ -615,6 +618,24 @@ func (c *Controller) sync() (viewNum uint64, seq uint64, decisions uint64) {
 		return view, md.LatestSequence + 1, 0
 	}
 	return view, md.LatestSequence + 1, md.DecisionsInView + 1
+}
+
+func (c *Controller) maybePruneInFlight(syncResultViewMD protos.ViewMetadata) {
+	inFlight := c.InFlight.InFlightProposal()
+	if inFlight == nil {
+		c.Logger.Debugf("No in-flight proposal to prune")
+		return
+	}
+	inFlightMD := &protos.ViewMetadata{}
+	if err := proto.Unmarshal(inFlight.Metadata, inFlightMD); err != nil {
+		c.Logger.Panicf("In-flight proposal was malformed: %v", err)
+	}
+	c.Logger.Debugf("In-flight proposal: view: %d, seq: %d", inFlightMD.ViewId, inFlightMD.LatestSequence)
+	c.Logger.Debugf("Sync result: view: %d, seq: %d", syncResultViewMD.ViewId, syncResultViewMD.LatestSequence)
+	if syncResultViewMD.LatestSequence > inFlightMD.LatestSequence {
+		c.Logger.Infof("Synced to sequence %d, deleting in-flight as it is stale", syncResultViewMD.LatestSequence)
+		c.InFlight.clear()
+	}
 }
 
 func (c *Controller) fetchState() *types.ViewAndSeq {

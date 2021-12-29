@@ -405,6 +405,7 @@ func (c *Consensus) createComponents() {
 		ViewSequences:      &atomic.Value{},
 		Collector:          c.collector,
 		State:              c.state,
+		InFlight:           c.inFlight,
 	}
 
 	c.viewChanger.Comm = c.controller
