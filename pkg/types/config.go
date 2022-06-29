@@ -91,7 +91,7 @@ type Configuration struct {
 // and between clients to nodes, is approximately 10ms.
 // Set the SelfID.
 var DefaultConfig = Configuration{
-	RequestBatchMaxCount:          100,
+	RequestBatchMaxCount:          10,
 	RequestBatchMaxBytes:          10 * 1024 * 1024,
 	RequestBatchMaxInterval:       50 * time.Millisecond,
 	IncomingMessageBufferSize:     200,
